@@ -1103,33 +1103,11 @@
             <p>We’re here to help. Get in touch with us.</p>
           </div>
 
-          <div class="ci">
-            <svg class="i" aria-hidden="true">
-              <use href="#i-phone" />
-            </svg>
-
-            <div>
-              +254 768387842
-              <small>Call or WhatsApp</small>
-            </div>
-          </div>
-
-          <div class="ci">
-            <svg class="i" aria-hidden="true">
-              <use href="#i-mail" />
-            </svg>
-
-            <div>
-              mokuajoshuaongeri@gmail.com
-              <small>We’ll respond within 24 hours</small>
-            </div>
-          </div>
+          {% include "_contact_links.html" %}
 
           <div class="soc" aria-label="Social links">
             <!-- Replace # with your real social profile URLs. -->
-            <a href="#" aria-label="Facebook">f</a>
-            <a href="#" aria-label="X">𝕏</a>
-            <a href="#" aria-label="Instagram">ig</a>
+            {% include "_social_icons.html" %}
             <a href="#" aria-label="LinkedIn">in</a>
           </div>
         </div>
@@ -1141,7 +1119,7 @@
       <div class="wrap">
         <span>
           © {{ current_year|default(2026) }} CivicNest Africa. Developed by
-          <a class="dev" href="#">Mabel Technologies</a>.
+          <a class="dev" href="{{ url_for('mabel_technologies') }}">Mabel Technologies</a>.
         </span>
       </div>
     </footer>

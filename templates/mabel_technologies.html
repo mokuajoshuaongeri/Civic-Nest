@@ -1,0 +1,164 @@
+{% extends "site_base.html" %}
+
+{% block title %}Mabel Technologies{% endblock %}
+
+{% block head %}
+<style>
+  .mabel-page {
+    display: grid;
+    gap: 24px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  .mabel-hero {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(28px, 7vw, 64px);
+    border-radius: 28px;
+    background:
+      radial-gradient(circle at 90% 5%, rgba(143, 194, 255, .36), transparent 35%),
+      linear-gradient(135deg, #001b5e, #1456d8 65%, #4985ed);
+    color: #fff;
+  }
+  .mabel-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border: 1px solid rgba(255,255,255,.3);
+    border-radius: 999px;
+    background: rgba(255,255,255,.1);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+  .mabel-hero h1 {
+    max-width: 700px;
+    margin-top: 24px;
+    font-size: clamp(36px, 7vw, 68px);
+    line-height: 1.05;
+    letter-spacing: -.05em;
+  }
+  .mabel-hero p {
+    max-width: 590px;
+    margin-top: 18px;
+    color: rgba(255,255,255,.82);
+    font-size: clamp(15px, 2vw, 18px);
+    line-height: 1.7;
+  }
+  .mabel-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 28px;
+  }
+  .mabel-actions .btn {
+    min-height: 46px;
+    padding: 0 20px;
+    border: 1px solid rgba(255,255,255,.35);
+    border-radius: 12px;
+    background: #fff;
+    color: #123b91;
+  }
+  .mabel-actions .btn.secondary {
+    background: rgba(255,255,255,.1);
+    color: #fff;
+  }
+  .mabel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+    gap: 16px;
+  }
+  .mabel-card {
+    padding: 24px;
+    border: 1px solid #dce7f8;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 12px 36px rgba(10, 34, 96, .06);
+  }
+  .mabel-icon {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    border-radius: 14px;
+    background: #e6eeff;
+    color: #1456d8;
+    font-size: 21px;
+  }
+  .mabel-card h2 {
+    margin-top: 18px;
+    color: #071a42;
+    font-size: 17px;
+  }
+  .mabel-card p {
+    margin-top: 8px;
+    color: #536581;
+    line-height: 1.7;
+  }
+  .mabel-card a {
+    display: inline-block;
+    margin-top: 14px;
+    color: #1456d8;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+  }
+  .mabel-note {
+    padding: 20px 24px;
+    border-radius: 18px;
+    background: #eaf2ff;
+    color: #344967;
+    line-height: 1.7;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="mabel-page">
+  <section class="mabel-hero">
+    <span class="mabel-kicker">Built with purpose</span>
+    <h1>Mabel Technologies</h1>
+    <p>
+      Thoughtful technology for real people and ambitious ideas. We build
+      digital experiences that make it easier to connect, discover, and get
+      things done.
+    </p>
+    <div class="mabel-actions">
+      <a class="btn" href="https://wa.me/254768387842" target="_blank" rel="noopener noreferrer">
+        Chat on WhatsApp
+      </a>
+      <a class="btn secondary" href="{{ url_for('submit_review') }}">
+        Send a message or review
+      </a>
+    </div>
+  </section>
+
+  <section class="mabel-grid" aria-label="Mabel Technologies contact options">
+    <article class="mabel-card">
+      <span class="mabel-icon" aria-hidden="true">✦</span>
+      <h2>Digital experiences</h2>
+      <p>Websites and online platforms designed to help people find what they need.</p>
+    </article>
+    <article class="mabel-card">
+      <span class="mabel-icon" aria-hidden="true">↗</span>
+      <h2>Let’s talk</h2>
+      <p>Have an idea or question? Start a direct conversation on WhatsApp.</p>
+      <a href="https://wa.me/254768387842" target="_blank" rel="noopener noreferrer">
+        +254 768 387 842
+      </a>
+    </article>
+    <article class="mabel-card">
+      <span class="mabel-icon" aria-hidden="true">✉</span>
+      <h2>Send feedback</h2>
+      <p>Share a message or review with the team using our feedback form.</p>
+      <a href="{{ url_for('submit_review') }}">Open the review form</a>
+    </article>
+  </section>
+
+  <p class="mabel-note">
+    Mabel Technologies develops CivicNest Africa. We use the existing CivicNest
+    WhatsApp and feedback contacts for inquiries.
+  </p>
+</main>
+{% endblock %}

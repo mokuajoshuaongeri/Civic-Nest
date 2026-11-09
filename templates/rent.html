@@ -1618,17 +1618,17 @@
             <h3>Contact CivicNest Africa</h3>
             <p>We’re here to help you find your next home.</p>
           </div>
-          <div class="contact-item">
+          <a class="contact-item" href="https://wa.me/254768387842" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit">
             <i class="fa-solid fa-phone"></i>
-            <div>+254 768387842<small>Call or WhatsApp</small></div>
-          </div>
-          <div class="contact-item">
+            <div>+254 768387842<small>Message us on WhatsApp</small></div>
+          </a>
+          <a class="contact-item" href="{{ url_for('submit_review') }}" style="text-decoration:none;color:inherit">
             <i class="fa-solid fa-envelope"></i>
             <div>
-              www.mokuajoshuaongeri@gmail.com
-              <small>We’ll respond as soon as possible</small>
+              mokuajoshuaongeri@gmail.com
+              <small>Send us feedback or a review</small>
             </div>
-          </div>
+          </a>
         </div>
       </section>
     </main>
@@ -1637,7 +1637,7 @@
       <div class="wrap footer-inner">
         <p>
           &copy; <span id="currentYear"></span> CivicNest Africa. Developed by
-          Mabel Technologies.
+          <a class="dev" href="{{ url_for('mabel_technologies') }}">Mabel Technologies</a>.
         </p>
         <p>Find your place. Build your future.</p>
       </div>

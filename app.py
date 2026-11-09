@@ -671,6 +671,22 @@ def notify_admin_listing(property_title, landlord_name, location):
     return _send_telegram(message)
 
 
+def notify_admin_review(review_id, name, email_address, rating, review_text):
+    esc = lambda value: html.escape(str(value or ""))
+    review_preview = review_text[:600]
+    if len(review_text) > len(review_preview):
+        review_preview += "…"
+    message = (
+        "⭐ <b>NEW CIVICNEST REVIEW</b>\n\n"
+        f"👤 <b>From:</b> {esc(name)}\n"
+        f"✉️ <b>Email:</b> {esc(email_address or 'Not provided')}\n"
+        f"⭐ <b>Rating:</b> {rating}/5\n"
+        f"📝 <b>Review:</b> {esc(review_preview)}\n\n"
+        f"Review #{review_id} is available in the admin dashboard."
+    )
+    return _send_telegram(message)
+
+
 def notify_tenant_lead(
     property_title,
     landlord_name,
@@ -2507,6 +2523,8 @@ def edit_property(property_id):
                     "deposit", "deposit amount",
                     keep=property_data["deposit"]
                 )
+                if deposit_value is not None and deposit_value > price_value:
+                    raise ValueError("Deposit cannot be greater than monthly rent.")
                 distance_value = num(
                     "distance_from_campus", "distance from campus",
                     cast=float, maximum=1000,
@@ -3035,6 +3053,8 @@ def add_property():
         )
         if error:
             return fail(error)
+        if deposit is not None and deposit > price:
+            return fail("Deposit cannot be greater than monthly rent.")
 
         distance, error = optional_number(
             "distance_from_campus", float, "campus distance", 1000
@@ -4252,7 +4272,8 @@ def admin_dashboard():
                 (SELECT COUNT(*) FROM users WHERE role = 'landlord') AS landlords,
                 (SELECT COUNT(*) FROM properties) AS total_properties,
                 (SELECT COUNT(*) FROM properties WHERE status = 'pending') AS pending_properties,
-                (SELECT COUNT(*) FROM property_reports WHERE status = 'pending') AS pending_reports
+                (SELECT COUNT(*) FROM property_reports WHERE status = 'pending') AS pending_reports,
+                (SELECT COUNT(*) FROM site_reviews WHERE status = 'new') AS pending_reviews
             """
         )
         stats = cursor.fetchone()
@@ -4301,12 +4322,24 @@ def admin_dashboard():
         )
         reports = cursor.fetchall()
 
+        cursor.execute(
+            """
+            SELECT id, name, email, rating, review_text, status, created_at
+            FROM site_reviews
+            ORDER BY CASE WHEN status = 'new' THEN 0 ELSE 1 END,
+                     created_at DESC
+            LIMIT 100
+            """
+        )
+        reviews = cursor.fetchall()
+
         return render_template(
             "admin_dashboard.html",
             stats=stats,
             users=users,
             properties=properties,
             reports=reports,
+            reviews=reviews,
         )
     except Exception:
         app.logger.exception("ADMIN DASHBOARD ERROR")
@@ -4317,6 +4350,7 @@ def admin_dashboard():
             users=[],
             properties=[],
             reports=[],
+            reviews=[],
             error=True,
         ), 500
     finally:
@@ -4324,6 +4358,110 @@ def admin_dashboard():
             cursor.close()
         if connection:
             connection.close()
+
+
+@app.route("/review", methods=["GET", "POST"])
+def submit_review():
+    if request.method == "GET":
+        return render_template("review.html", review_form={})
+
+    name = request.form.get("name", "").strip()
+    email_address = request.form.get("email", "").strip().lower()
+    review_text = request.form.get("review", "").strip()
+    rating_text = request.form.get("rating", "").strip()
+
+    review_form = {
+        "name": name,
+        "email": email_address,
+        "review": review_text,
+        "rating": rating_text,
+    }
+
+    if not name or len(name) > 100:
+        flash("Enter your name (up to 100 characters).", "error")
+        return render_template("review.html", review_form=review_form), 400
+    if email_address and (
+        len(email_address) > 254
+        or not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email_address)
+    ):
+        flash("Enter a valid email address, or leave it blank.", "error")
+        return render_template("review.html", review_form=review_form), 400
+    if len(review_text) < 10 or len(review_text) > 2000:
+        flash("Your review must be between 10 and 2,000 characters.", "error")
+        return render_template("review.html", review_form=review_form), 400
+    try:
+        rating = int(rating_text)
+    except ValueError:
+        rating = 0
+    if rating not in range(1, 6):
+        flash("Choose a rating from 1 to 5 stars.", "error")
+        return render_template("review.html", review_form=review_form), 400
+
+    connection = None
+    cursor = None
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute(
+            """
+            INSERT INTO site_reviews (name, email, rating, review_text)
+            VALUES (%s, %s, %s, %s)
+            RETURNING id
+            """,
+            (name, email_address or None, rating, review_text),
+        )
+        review_id = cursor.fetchone()[0]
+        connection.commit()
+    except Exception:
+        if connection:
+            connection.rollback()
+        app.logger.exception("Could not save a site review.")
+        flash("We could not save your review right now. Please try again.", "error")
+        return render_template("review.html", review_form=review_form), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+    notify_admin_review(review_id, name, email_address, rating, review_text)
+    flash("Thank you — your review has been sent.", "success")
+    return redirect(url_for("submit_review"))
+
+
+@app.route("/admin/reviews/<int:review_id>/status", methods=["POST"])
+@admin_required
+def admin_update_review_status(review_id):
+    status = request.form.get("status", "")
+    if status not in {"new", "reviewed"}:
+        flash("Choose a valid review status.", "error")
+        return redirect(url_for("admin_dashboard") + "#reviews")
+
+    connection = None
+    cursor = None
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute(
+            "UPDATE site_reviews SET status = %s WHERE id = %s",
+            (status, review_id),
+        )
+        if cursor.rowcount == 0:
+            flash("Review not found.", "error")
+        else:
+            connection.commit()
+            flash("Review status updated.", "success")
+    except Exception:
+        if connection:
+            connection.rollback()
+        app.logger.exception("Could not update review status.")
+        flash("Unable to update the review right now.", "error")
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+    return redirect(url_for("admin_dashboard") + "#reviews")
 
 
 @app.route("/admin/users/<int:user_id>/role", methods=["POST"])
@@ -7596,6 +7734,12 @@ def admin_add_transport_routes_bulk():
 @app.route("/about")
 def about_page():
     return render_template("about.html", current_year=datetime.utcnow().year)    
+
+
+@app.route("/mabel-technologies")
+def mabel_technologies():
+    return render_template("mabel_technologies.html")
+
 
 @app.route("/admin/test-telegram")
 @admin_required

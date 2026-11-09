@@ -1013,6 +1013,29 @@ svg.i {
     align-items: center
 }
 
+.soc a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.soc svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+}
+
+.soc a[aria-label="Instagram"] svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+}
+
+.soc a[aria-label="Instagram"] .social-dot {
+    fill: currentColor;
+    stroke: none;
+}
+
 .soc a:hover {
     color: #001b5e
 }

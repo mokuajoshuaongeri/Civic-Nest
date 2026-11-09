@@ -1,0 +1,268 @@
+{% extends "site_base.html" %}
+
+{% block title %}Leave a Review{% endblock %}
+
+{% block head %}
+<style>
+  .review-page {
+    display: grid;
+    gap: 22px;
+    max-width: 880px;
+    margin: 0 auto;
+  }
+  .review-intro {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(26px, 5vw, 46px);
+    border-radius: 24px;
+    background:
+      radial-gradient(circle at 88% 8%, rgba(255, 255, 255, .18), transparent 28%),
+      linear-gradient(125deg, #001b5e 0%, #1456d8 70%, #4386ee 100%);
+    color: #fff;
+  }
+  .review-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border: 1px solid rgba(255,255,255,.28);
+    border-radius: 999px;
+    background: rgba(255,255,255,.1);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+  .review-stars {
+    color: #ffd166;
+    font-size: 16px;
+    letter-spacing: 3px;
+  }
+  .review-intro h1 {
+    margin-top: 20px;
+    color: #fff;
+    font-size: clamp(30px, 6vw, 48px);
+    font-weight: 800;
+    letter-spacing: -.045em;
+    line-height: 1.1;
+  }
+  .review-intro p {
+    max-width: 580px;
+    margin-top: 12px;
+    color: rgba(255,255,255,.82);
+    font-size: 15px;
+    line-height: 1.75;
+  }
+  .review-card {
+    padding: clamp(20px, 5vw, 38px);
+    border: 1px solid #dce7f8;
+    border-radius: 24px;
+    background: #fff;
+    box-shadow: 0 18px 55px rgba(10, 34, 96, .09);
+  }
+  .review-form {
+    display: grid;
+    gap: 20px;
+  }
+  .review-form label {
+    display: grid;
+    gap: 9px;
+    color: #071a42;
+    font-size: 13px;
+    font-weight: 800;
+  }
+  .review-form input,
+  .review-form select,
+  .review-form textarea {
+    width: 100%;
+    min-height: 52px;
+    padding: 13px 15px;
+    border: 1px solid #d5e0f1;
+    border-radius: 12px;
+    background: #f8faff;
+    color: #071a42;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+  }
+  .review-form input::placeholder,
+  .review-form textarea::placeholder {
+    color: #8795aa;
+  }
+  .review-form input:hover,
+  .review-form select:hover,
+  .review-form textarea:hover {
+    border-color: #9db8e7;
+  }
+  .review-form input:focus,
+  .review-form select:focus,
+  .review-form textarea:focus {
+    border-color: #1456d8;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(20, 86, 216, .1);
+    outline: none;
+  }
+  .review-form textarea {
+    min-height: 180px;
+    resize: vertical;
+    line-height: 1.7;
+  }
+  .review-help {
+    margin-top: -12px;
+    color: #6b7b92;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .review-submit {
+    display: inline-flex;
+    width: 100%;
+    min-height: 56px;
+    align-items: center;
+    justify-content: center;
+    gap: 11px;
+    padding: 12px 20px;
+    border: 0;
+    border-radius: 14px;
+    background: linear-gradient(100deg, #0647c9, #1475ff);
+    box-shadow: 0 9px 20px rgba(20, 86, 216, .24);
+    color: #fff;
+    cursor: pointer;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+  }
+  .review-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 13px 25px rgba(20, 86, 216, .3);
+    filter: brightness(1.05);
+  }
+  .review-submit:active {
+    transform: translateY(0);
+  }
+  .review-submit svg {
+    width: 19px;
+    height: 19px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .review-privacy {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    padding-top: 16px;
+    border-top: 1px solid #edf1f7;
+    color: #66758c;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .review-privacy svg {
+    width: 17px;
+    height: 17px;
+    flex: none;
+    margin-top: 1px;
+    fill: none;
+    stroke: #1456d8;
+    stroke-width: 1.8;
+  }
+  @media (min-width: 680px) {
+    .review-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .review-fields .review-rating {
+      grid-column: 1 / -1;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .review-form *,
+    .review-submit {
+      transition: none;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="review-page">
+  <header class="review-intro">
+    <span class="review-eyebrow"><span class="review-stars" aria-hidden="true">★★★★★</span> Your voice matters</span>
+    <h1>How was your CivicNest experience?</h1>
+    <p>
+      Your feedback helps us make finding a home and using CivicNest better for
+      everyone. We’d love to hear what you think.
+    </p>
+  </header>
+
+  <section class="review-card" aria-label="Review form">
+    <form class="review-form" method="post" action="{{ url_for('submit_review') }}">
+      <div class="review-fields">
+        <label>
+          Your name
+          <input
+            type="text"
+            name="name"
+            maxlength="100"
+            autocomplete="name"
+            placeholder="How should we address you?"
+            value="{{ review_form.get('name', '') }}"
+            required
+          />
+        </label>
+        <label>
+          Email <span style="font-weight:500;color:#718096">(optional)</span>
+          <input
+            type="email"
+            name="email"
+            maxlength="254"
+            autocomplete="email"
+            placeholder="you@example.com"
+            value="{{ review_form.get('email', '') }}"
+          />
+        </label>
+        <label class="review-rating">
+          Your rating
+          <select name="rating" required>
+            <option value="">Select a rating</option>
+            {% for value in range(5, 0, -1) %}
+            <option value="{{ value }}" {% if review_form.get('rating') == value|string %}selected{% endif %}>
+              {{ value }} star{{ '' if value == 1 else 's' }}{% if value == 5 %} — Excellent{% elif value == 4 %} — Very good{% elif value == 3 %} — Good{% elif value == 2 %} — Could be better{% else %} — Needs improvement{% endif %}
+            </option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+      <label>
+        Your review
+        <textarea
+          name="review"
+          minlength="10"
+          maxlength="2000"
+          placeholder="Share what went well or how we can improve..."
+          required
+        >{{ review_form.get('review', '') }}</textarea>
+      </label>
+      <p class="review-help">Please write at least 10 characters. Your review is sent directly to the CivicNest team.</p>
+      <button class="review-submit" type="submit">
+        Send my review
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 12h14M13 6l6 6-6 6" />
+        </svg>
+      </button>
+      <p class="review-privacy">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 3 5 6v5c0 4.5 2.8 8 7 10 4.2-2 7-5.5 7-10V6l-7-3Z" />
+          <path d="m9 12 2 2 4-4" />
+        </svg>
+        Your contact details are only used by our team if we need to follow up.
+      </p>
+    </form>
+  </section>
+</main>
+{% endblock %}

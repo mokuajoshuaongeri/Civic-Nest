@@ -720,6 +720,7 @@
                   >
                   <input
                     type="number"
+                    id="deposit"
                     name="deposit"
                     min="0"
                     step="any"
@@ -948,32 +949,10 @@
             <p>We’re here to help. Get in touch with us.</p>
           </div>
 
-          <div class="ci">
-            <svg class="i" aria-hidden="true">
-              <use href="#i-phone" />
-            </svg>
-
-            <div>
-              +254 768387842
-              <small>Call or WhatsApp</small>
-            </div>
-          </div>
-
-          <div class="ci">
-            <svg class="i" aria-hidden="true">
-              <use href="#i-mail" />
-            </svg>
-
-            <div>
-              www.mokuajoshuaongeri@gmail.com
-              <small>We’ll respond within 24 hours</small>
-            </div>
-          </div>
+          {% include "_contact_links.html" %}
 
           <div class="soc" aria-label="Social links">
-            <a href="#" aria-label="Facebook">f</a>
-            <a href="#" aria-label="X">𝕏</a>
-            <a href="#" aria-label="Instagram">ig</a>
+            {% include "_social_icons.html" %}
             <a href="#" aria-label="LinkedIn">in</a>
           </div>
         </div>
@@ -985,7 +964,7 @@
       <div class="wrap">
         <span>
           © {{ current_year }} CivicNest Africa. Developed by
-          <a class="dev" href="#">Mabel Technologies</a>.
+          <a class="dev" href="{{ url_for('mabel_technologies') }}">Mabel Technologies</a>.
         </span>
       </div>
     </footer>
@@ -1075,11 +1054,28 @@
       var hiddenType = document.getElementById("listingType");
       var typeSelect = document.getElementById("propertyType");
       var whereLink = document.getElementById("whereLink");
+      var priceInput = document.getElementById("price");
+      var depositInput = document.getElementById("deposit");
 
       // "Other" town: show the "town and country" box only when needed
       var townSelect = document.getElementById("location");
       var otherRow = document.getElementById("otherTownRow");
       var otherInput = document.getElementById("locationOther");
+
+      function syncDepositLimit() {
+        var rent = Number(priceInput.value);
+        var deposit = Number(depositInput.value);
+        var isRent = hiddenType.value === "rent";
+        depositInput.max =
+          isRent && priceInput.value && Number.isFinite(rent) ? rent : "";
+        depositInput.setCustomValidity(
+          isRent && depositInput.value && deposit > rent
+            ? "Deposit cannot be greater than monthly rent."
+            : "",
+        );
+      }
+      priceInput.addEventListener("input", syncDepositLimit);
+      depositInput.addEventListener("input", syncDepositLimit);
 
       function syncOther() {
         var isOther = townSelect.value === "Other";
@@ -1096,6 +1092,7 @@
           el.hidden = !show;
           el.querySelectorAll("input,select,textarea").forEach(function (f) { f.disabled = !show; });
         });
+        syncDepositLimit();
       }
 
       function setType(type) {
@@ -1140,6 +1137,8 @@
           else el.value = vals[0];
         });
       });
+
+      syncDepositLimit();
 
       // After restoring any saved values, show the "Other" box if it applies
       syncOther();

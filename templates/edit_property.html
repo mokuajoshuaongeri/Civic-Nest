@@ -712,6 +712,7 @@
                   >
                   <input
                     type="number"
+                    id="price"
                     name="price"
                     value="{{ property.price }}"
                     min="0"
@@ -727,7 +728,9 @@
                   >
                   <input
                     type="number"
+                    id="deposit"
                     name="deposit"
+                    max="{{ property.price }}"
                     min="0"
                     step="0.01"
                     value="{% if property.deposit is not none %}{{ property.deposit }}{% endif %}"
@@ -915,32 +918,10 @@
             <p>We’re here to help. Get in touch with us.</p>
           </div>
 
-          <div class="ci">
-            <svg class="i" aria-hidden="true">
-              <use href="#i-phone" />
-            </svg>
-
-            <div>
-              +254 768387842
-              <small>Call or WhatsApp</small>
-            </div>
-          </div>
-
-          <div class="ci">
-            <svg class="i" aria-hidden="true">
-              <use href="#i-mail" />
-            </svg>
-
-            <div>
-              www.mokuajoshuaongeri@gmail.com
-              <small>We’ll respond within 24 hours</small>
-            </div>
-          </div>
+          {% include "_contact_links.html" %}
 
           <div class="soc" aria-label="Social links">
-            <a href="#" aria-label="Facebook">f</a>
-            <a href="#" aria-label="X">𝕏</a>
-            <a href="#" aria-label="Instagram">ig</a>
+            {% include "_social_icons.html" %}
             <a href="#" aria-label="LinkedIn">in</a>
           </div>
         </div>
@@ -952,7 +933,7 @@
       <div class="wrap">
         <span>
           © {{ current_year }} CivicNest Africa. Developed by
-          <a class="dev" href="#">Mabel Technologies</a>.
+          <a class="dev" href="{{ url_for('mabel_technologies') }}">Mabel Technologies</a>.
         </span>
       </div>
     </footer>
@@ -1052,11 +1033,28 @@
       })();
 
       {% if not is_sale %}
+      const rentInput = document.getElementById("price");
+      const depositInput = document.getElementById("deposit");
       const totalInput = document.getElementById("total_units");
       const vacantInput = document.getElementById("vacant_units");
       const occupiedInput = document.getElementById("occupied_units");
       const preview = document.getElementById("availabilityPreview");
       const errorBox = document.getElementById("availabilityError");
+
+      function updateDepositLimit() {
+        const rent = Number(rentInput.value);
+        const deposit = Number(depositInput.value);
+        depositInput.max = rentInput.value && Number.isFinite(rent) ? rent : "";
+        depositInput.setCustomValidity(
+          depositInput.value && deposit > rent
+            ? "Deposit cannot be greater than monthly rent."
+            : "",
+        );
+      }
+
+      rentInput.addEventListener("input", updateDepositLimit);
+      depositInput.addEventListener("input", updateDepositLimit);
+      updateDepositLimit();
 
       function updateAvailability() {
         const total = parseInt(totalInput.value) || 0;

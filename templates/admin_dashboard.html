@@ -177,6 +177,7 @@ details .inline{margin-top:10px}
     <a href="#pending">Waiting for review {% if stats and stats.pending_properties %}<span class="dot">{{ stats.pending_properties }}</span>{% endif %}</a>
     <a href="#properties">All listings</a>
     <a href="#users">Users</a>
+    <a href="#reviews">Reviews {% if stats and stats.pending_reviews %}<span class="dot">{{ stats.pending_reviews }}</span>{% endif %}</a>
     <a href="#reports">Reports {% if stats and stats.pending_reports %}<span class="dot">{{ stats.pending_reports }}</span>{% endif %}</a>
     <a href="#analytics">Analytics</a>
     <a href="#report">Performance report</a>
@@ -377,6 +378,41 @@ details .inline{margin-top:10px}
         </article>
         {% else %}
         <div class="empty">There are no users yet.</div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- REVIEWS -->
+    <section class="block pending" id="reviews">
+      <div class="block-head">
+        <div><h2>Reviews</h2><p>Feedback submitted through the CivicNest contact page.</p></div>
+        {% if stats %}<span class="count">{{ stats.pending_reviews }} new · {{ reviews|length }} shown</span>{% endif %}
+      </div>
+      <div class="list">
+        {% for review in reviews %}
+        <article class="card">
+          <div class="row">
+            <div>
+              <h3>{{ review.rating }} / 5 stars</h3>
+              <p class="muted">
+                {{ review.name }}
+                {% if review.email %} · <a href="mailto:{{ review.email }}">{{ review.email }}</a>{% endif %}
+                {% if review.created_at %} · {{ review.created_at.strftime('%d %b %Y, %H:%M') }}{% endif %}
+              </p>
+            </div>
+            <div class="badges"><span class="badge st-{{ 'pending' if review.status == 'new' else 'reviewed' }}">{{ 'New' if review.status == 'new' else 'Reviewed' }}</span></div>
+          </div>
+          <p class="muted" style="margin-top:12px;white-space:pre-wrap">{{ review.review_text }}</p>
+          <form class="inline" method="post" action="{{ url_for('admin_update_review_status', review_id=review.id) }}">
+            <select name="status" aria-label="Review status">
+              <option value="new" {{ 'selected' if review.status == 'new' else '' }}>New</option>
+              <option value="reviewed" {{ 'selected' if review.status == 'reviewed' else '' }}>Reviewed</option>
+            </select>
+            <button class="btn ghost" type="submit">Update status</button>
+          </form>
+        </article>
+        {% else %}
+        <div class="empty">No reviews have been submitted yet.</div>
         {% endfor %}
       </div>
     </section>
